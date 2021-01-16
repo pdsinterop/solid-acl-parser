@@ -19,6 +19,7 @@ const predicates = {
   agent: `${prefixes.acl}agent`,
   agentGroup: `${prefixes.acl}agentGroup`,
   agentClass: `${prefixes.acl}agentClass`,
+  origin: `${prefixes.acl}origin`,
   accessTo: `${prefixes.acl}accessTo`,
   default: `${prefixes.acl}default`,
   defaultForNew: `${prefixes.acl}defaultForNew`,
@@ -96,7 +97,7 @@ class AclParser {
 
   _isAclRule (quads: N3.Quad[]) {
     const requiredPredicates = [
-      [predicates.agent, predicates.agentClass, predicates.agentGroup],
+      [predicates.agent, predicates.agentClass, predicates.agentGroup, predicates.origin],
       [predicates.mode]
     ]
     return requiredPredicates.every(p => quads.some(({ predicate }) => p.includes(predicate.id)))
@@ -126,6 +127,10 @@ class AclParser {
 
       case predicates.agentGroup:
         rule.agents.addGroup(value)
+        break
+
+      case predicates.origin:
+        rule.agents.addOrigin(value)
         break
 
       case predicates.agentClass:
@@ -209,6 +214,13 @@ class AclParser {
         namedNode(subjectId),
         namedNode(predicates.agentGroup),
         namedNode(relative(group))
+      ))
+    }
+    for (const origin of rule.agents.origins) {
+      quads.push(quad(
+        namedNode(subjectId),
+        namedNode(predicates.origin),
+        namedNode(origin)
       ))
     }
     if (rule.agents.public) {
