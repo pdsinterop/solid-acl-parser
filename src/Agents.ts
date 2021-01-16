@@ -31,12 +31,14 @@ export type AgentsCastable = Agents | string | string[] | undefined
 class Agents {
   public readonly webIds: Set<string>
   public readonly groups: Set<string>
+  public readonly origins: Set<string>
   public public: boolean
   public authenticated: boolean
 
   constructor (...webIds: string[]) {
     this.webIds = new Set()
     this.groups = new Set()
+    this.origins = new Set()
     this.public = false
     this.authenticated = false
 
@@ -68,6 +70,20 @@ class Agents {
 
   deleteGroup (...groups: string[]) {
     groups.forEach(group => this.groups.delete(group))
+    return this
+  }
+
+  addOrigin (...origins: string[]) {
+    origins.forEach(origin => this.origins.add(origin))
+    return this
+  }
+
+  hasOrigin (...origins: string[]) {
+    return origins.every(origin => this.origins.has(origin))
+  }
+
+  deleteOrigin (...origins: string[]) {
+    origins.forEach(origin => this.origins.delete(origin))
     return this
   }
 
@@ -110,6 +126,7 @@ class Agents {
 
     clone.addWebId(...this.webIds)
     clone.addGroup(...this.groups)
+    clone.addOrigin(...this.origins)
     clone.public = this.public
     clone.authenticated = this.authenticated
 
@@ -119,6 +136,7 @@ class Agents {
   equals (other: Agents) {
     return iterableEquals(this.webIds, other.webIds) &&
       iterableEquals(this.groups, other.groups) &&
+      iterableEquals(this.origins, other.origins) &&
       this.public === other.public &&
       this.authenticated === other.authenticated
   }
@@ -126,6 +144,7 @@ class Agents {
   includes (other: Agents) {
     return this.hasWebId(...other.webIds) &&
       this.hasGroup(...other.groups) &&
+      this.hasOrigin(...other.origins) &&
       (this.public || !other.public) &&
       (this.authenticated || !other.authenticated)
   }
@@ -133,6 +152,7 @@ class Agents {
   isEmpty () {
     return this.webIds.size === 0 &&
       this.groups.size === 0 &&
+      this.origins.size === 0 &&
       !this.public &&
       !this.authenticated
   }
@@ -162,6 +182,7 @@ class Agents {
     const agents = new Agents()
     agents.addWebId(...[...first.webIds].filter(webId => second.hasWebId(webId)))
     agents.addGroup(...[...first.groups].filter(group => second.hasGroup(group)))
+    agents.addOrigin(...[...first.origins].filter(origin => second.hasOrigin(origin)))
     if (first.hasPublic() && second.hasPublic()) {
       agents.addPublic()
     }
@@ -178,6 +199,7 @@ class Agents {
     const merged = first.clone()
     merged.addWebId(...second.webIds)
     merged.addGroup(...second.groups)
+    merged.addOrigin(...second.origins)
     merged.public = merged.public || second.public
     merged.authenticated = merged.authenticated || second.authenticated
 
@@ -191,6 +213,7 @@ class Agents {
     const agents = new Agents()
     agents.addWebId(...[...first.webIds].filter(webId => !second.hasWebId(webId)))
     agents.addGroup(...[...first.groups].filter(group => !second.hasGroup(group)))
+    agents.addOrigin(...[...first.origins].filter(origin => !second.hasOrigin(origin)))
     if (first.hasPublic() && !second.hasPublic()) {
       agents.addPublic()
     }

@@ -10,6 +10,10 @@ const sampleGroups = [
   'https://alice.example.com/work-groups#Work',
   'https://bob.example.com/work-groups#Family'
 ]
+const sampleOrigins = [
+  'https://alice.example.com',
+  'https://example.org'
+]
 
 describe('create and manipulate agents', () => {
   test('can use constructor to add multiple webIds', () => {
@@ -29,6 +33,16 @@ describe('create and manipulate agents', () => {
 
     expect(agents.hasWebId(...sampleWebIds)).toBe(false)
     expect(agents.hasGroup(...sampleGroups)).toBe(false)
+  })
+  test('can add and remove all origins', () => {
+    const agents = new Agents()
+    agents.addOrigin(...sampleOrigins)
+
+    expect(agents.hasOrigin(...sampleOrigins)).toBe(true)
+
+    agents.deleteOrigin(...sampleOrigins)
+
+    expect(agents.hasOrigin(...sampleOrigins)).toBe(false)
   })
   test('can use public', () => {
     const agents = new Agents(...sampleWebIds)
@@ -51,10 +65,12 @@ describe('create and manipulate agents', () => {
     const agents = new Agents()
     agents.addWebId(...sampleWebIds)
       .addGroup(...sampleGroups)
+      .addOrigin(...sampleOrigins)
       .deletePublic()
       .deleteAuthenticated()
       .deleteWebId(sampleWebIds[0])
       .deleteGroup(sampleGroups[0])
+      .deleteOrigin(sampleOrigins[0])
       .addPublic()
       .addAuthenticated()
 
@@ -62,6 +78,8 @@ describe('create and manipulate agents', () => {
     expect(agents.hasWebId(...sampleWebIds.slice(1))).toBe(true)
     expect(agents.hasGroup(sampleGroups[0])).toBe(false)
     expect(agents.hasGroup(...sampleGroups.slice(1))).toBe(true)
+    expect(agents.hasOrigin(sampleOrigins[0])).toBe(false)
+    expect(agents.hasOrigin(...sampleOrigins.slice(1))).toBe(true)
     expect(agents.hasPublic()).toBe(true)
     expect(agents.hasAuthenticated()).toBe(true)
   })
@@ -83,14 +101,17 @@ describe('create and manipulate agents', () => {
   test('can use merge to get all agents from both instances', () => {
     const first = new Agents(sampleWebIds[0])
     first.addGroup(...sampleGroups)
+    first.addGroup(...sampleOrigins)
     const second = new Agents(...sampleWebIds.slice(1))
     second.addGroup(...sampleGroups)
+    second.addOrigin(...sampleOrigins)
     second.addPublic()
 
     const merged = Agents.merge(first, second)
 
     expect(merged.hasWebId(...sampleWebIds)).toBe(true)
     expect(merged.hasGroup(...sampleGroups)).toBe(true)
+    expect(merged.hasOrigin(...sampleOrigins)).toBe(true)
     expect(merged.hasPublic()).toBe(true)
     expect(merged.hasAuthenticated()).toBe(false)
   })
@@ -164,6 +185,9 @@ describe('meta methods', () => {
       agents.addGroup(sampleGroups[0])
       expect(agents.isEmpty()).toBe(false)
       agents = new Agents()
+      agents.addOrigin(sampleOrigins[0])
+      expect(agents.isEmpty()).toBe(false)
+      agents = new Agents()
       agents.addPublic()
       expect(agents.isEmpty()).toBe(false)
       agents = new Agents()
@@ -201,10 +225,12 @@ describe('meta methods', () => {
       const first = new Agents()
       first.addWebId(...sampleWebIds)
       first.addGroup(...sampleGroups.slice(1))
+      first.addOrigin(...sampleOrigins.slice(1))
       first.addPublic()
       const second = new Agents()
       second.addWebId(sampleWebIds[0])
       second.addGroup(...sampleGroups)
+      second.addOrigin(...sampleOrigins)
       second.addPublic()
       second.addAuthenticated()
 
@@ -213,6 +239,8 @@ describe('meta methods', () => {
       expect(common.hasWebId(...sampleWebIds.slice(1))).toBe(false)
       expect(common.hasGroup(sampleGroups[0])).toBe(false)
       expect(common.hasGroup(...sampleGroups.slice(1))).toBe(true)
+      expect(common.hasOrigin(sampleOrigins[0])).toBe(false)
+      expect(common.hasOrigin(...sampleOrigins.slice(1))).toBe(true)
       expect(common.hasPublic()).toBe(true)
       expect(common.hasAuthenticated()).toBe(false)
     })
@@ -248,5 +276,10 @@ describe('meta methods', () => {
     const agents = new Agents()
     agents.addGroup(...sampleGroups)
     expect(agents.groups).toEqual(expect.any(Set))
+  })
+  test('agents.origins is of the type Set', () => {
+    const agents = new Agents()
+    agents.addOrigin(...sampleOrigins)
+    expect(agents.origins).toEqual(expect.any(Set))
   })
 })
