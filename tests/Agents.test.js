@@ -11,8 +11,8 @@ const sampleGroups = [
   'https://bob.example.com/work-groups#Family'
 ]
 const sampleOrigins = [
-  'https://alice.example.com/',
-  'https://example.org/'
+  'https://alice.example.com',
+  'https://example.org'
 ]
 
 describe('create and manipulate agents', () => {
@@ -104,6 +104,7 @@ describe('create and manipulate agents', () => {
     first.addGroup(...sampleOrigins)
     const second = new Agents(...sampleWebIds.slice(1))
     second.addGroup(...sampleGroups)
+    second.addOrigin(...sampleOrigins)
     second.addPublic()
 
     const merged = Agents.merge(first, second)
@@ -224,12 +225,12 @@ describe('meta methods', () => {
       const first = new Agents()
       first.addWebId(...sampleWebIds)
       first.addGroup(...sampleGroups.slice(1))
-      first.addGroup(...sampleOrigins.slice(1))
+      first.addOrigin(...sampleOrigins.slice(1))
       first.addPublic()
       const second = new Agents()
       second.addWebId(sampleWebIds[0])
       second.addGroup(...sampleGroups)
-      second.addOrigins(...sampleOrigins)
+      second.addOrigin(...sampleOrigins)
       second.addPublic()
       second.addAuthenticated()
 
